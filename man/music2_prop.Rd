@@ -11,11 +11,12 @@ music2_prop(
   clusters,
   samples,
   select.ct,
+  method = "toast",
   expr_low = 20,
   prop_r = 0.1,
   eps_c = 0.05,
   eps_r = 0.01,
-  n_resample = 20,
+  n_resample = 40,
   sample_prop = 0.5,
   cutoff_expr = 0.05,
   cutoff_c = 0.05,
@@ -24,8 +25,12 @@ music2_prop(
   markers = NULL,
   cell_size = NULL,
   ct.cov = FALSE,
+  nu = 1e-04,
+  eps = 0.01,
+  cap = 0.3,
   centered = FALSE,
-  normalize = FALSE
+  normalize = FALSE,
+  nb_cores = 1
 )
 }
 \arguments{
@@ -41,6 +46,8 @@ music2_prop(
 
 \item{select.ct}{vector of cell types, default as NULL. If NULL, then use all cell types provided by the single cell dataset;}
 
+\item{method}{can be 'toast' or 't_stats'. See MuSiC2 github documentation for more info;}
+
 \item{expr_low}{numeric, cutoff for defining lowly expressed genes in bulk data. Genes with mean expression across samples in bulk data < expr_low will be excluded from cell-type-specific DE gene detection. Default is 20;}
 
 \item{prop_r}{numeric, cutoff for defining rare cell types. Cell types with mean proportion across samples in bulk data < prop_r will be characterized as rare cell types. Otherwise, will be characterized as common cell types. Default is 0.1;}
@@ -49,11 +56,11 @@ music2_prop(
 
 \item{eps_r}{numeric, convergence cutoff for rare cell types. The cell type proportion estimate is converged if absolute change of proportion estimates for the current iteration against the previous iteration < eps_r. Default is 0.01;}
 
-\item{n_resample}{numeric, number of resamples used for detecting cell-type-specific DE genes. Default is 20;}
+\item{n_resample}{numeric, number of resamples used for detecting cell-type-specific DE genes. Only relevant for t_stats mode. Default is 40;}
 
-\item{sample_prop}{numeric, proportion of samples to be randomly sampled without replacement under each condition at each resampling. Default is 0.5;}
+\item{sample_prop}{numeric, proportion of samples to be randomly sampled without replacement under each condition at each resampling. Only relevant for t_stats mode. Default is 0.5;}
 
-\item{cutoff_expr}{numeric, cutoff for defining lowly expressed genes over resamples. Genes with average cell-type-specific expression calculated over all resamples in the lower cutoff_expr quantile are excluded from cell-type-specific DE gene detection. Default is 0.05;}
+\item{cutoff_expr}{numeric, cutoff for defining lowly expressed genes over resamples. Genes with average cell-type-specific expression calculated over all resamples in the lower cutoff_expr quantile are excluded from cell-type-specific DE gene detection. Only relevant for toast mode. Default is 0.05;}
 
 \item{cutoff_c}{numeric, cutoff for defining cell-type-specific DE genes for common cell types. Genes with the value of statistic, defined as the absolute value of the ratio of the mean and standard deviation of the log fold change over all resamples, in the upper cutoff_c quantile are considered as cell-type-specific DE genes. Default is 0.05;}
 
@@ -67,9 +74,13 @@ music2_prop(
 
 \item{ct.cov}{logical. If TRUE, use the covariance across cell types;}
 
+\item{cap}{numeric, cutoff on maximum number of genes removed for each cell type. For each cell type, at the maximum, genes with FDR adjusted p-value within the lower cap quantile are removed. Default is 0.3;}
+
 \item{centered}{logic, subtract avg of Y and D;}
 
 \item{normalize}{logic, divide Y and D by their standard deviation;}
+
+\item{nb_cores}{number of cores, for parallel computation. Only relevant for t_stats mode;}
 }
 \value{
 If MuSiC2 converges, return:
@@ -89,6 +100,19 @@ If MuSiC2 converges, return:
 \description{
 This function is used to deconvolve bulk RNA-seq data using single-cell reference generated under a different condition.
 }
+\details{
+As detailed in the MuSiC2 github documentation, MuSiC2 can be run in 2 modes to identify cell-type-specific DE genes:
+\itemize{
+   \item {t-statistics: the original method described in the manuscript.}
+   \item {TOAST (Li and Wu (2019)) with P-value cutoffs for defining cell-type-specific DE genes. MuSiC2 with TOAST runs faster and converges faster than MuSiC2 with T statistics as it does not require resamplings. Therefore, based on our simulation and real data studies, we recommend using TOAST (Li and Wu (2019)) with P-value cutoffs for deconvolving bulk samples with healthy single cell reference, and ad hoc T statistics for deconvolving bulk samples with diseased single cell reference.}
+   }
+When the difference between the diseased and healthy bulk samples is small, or the sample sizes are small, TOAST (Li and Wu (2019)) may not be able to detect any cell-type-specific DE genes, and we recommend using MuSiC2 with T statistics under this case.
+}
 \seealso{
 \code{\link{music_prop}}
+}
+\author{
+Jiaxin Fan, Xuran Wang
+
+Adapted by: Giacomo von Alvensleben, EPFL
 }
