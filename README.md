@@ -2,6 +2,9 @@ MuSiC
 =============================================
 `MuSiC` is an analysis toolkit for single-cell RNA-Seq experiments. To use this package, you will need the R statistical computing environment (version 3.0 or later) and several packages available through Bioconductor and CRAN.
 
+> ## Update (10/21/2024)
+> MuSiC2 code revision. music2_prop_t_statistics() and music2_prop_toast() have been merged into a unique function music2_prop() and code optimized.
+
 > ## Update (01/15/2024)
 > We're excited to announce two significant enhancements to the MuSiC toolkit:
 
