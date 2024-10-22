@@ -166,6 +166,22 @@ music2_prop <- function(bulk.control.mtx,
   prop_case_ini <- prop_case_ini$Est.prop.weighted
   # do a copy
   prop_case_ini.copy <- prop_case_ini
+
+
+  # filter only valid cell type to avoid non-matching dimensions later
+  # examples of filtered cell types are for example cell types with only 1 sample
+  # valid cell types are filtered by music_prop with the line following code: valid.ct = (colSums(is.na(Sigma)) == 0)&(colSums(is.na(D1)) == 0)&(!is.na(M.S))
+  valid.ct           <- intersect(colnames(prop_control), colnames(prop_case_ini))
+  prop_control       <- prop_control[, colnames(prop_control) %in% valid.ct]
+  prop_case_ini      <- prop_case_ini[, colnames(prop_case_ini) %in% valid.ct]
+  prop_case_ini.copy <- prop_case_ini.copy[, colnames(prop_case_ini.copy) %in% valid.ct]
+  samples.keep       <- SingleCellExperiment::colData(sc.sce)[[clusters]] %in% valid.ct
+  sc.sce             <- sc.sce[, samples.keep]
+  select.ct          <- select.ct[select.ct %in% valid.ct]
+  if(!is.null(cell_size)){
+    cell_size <- cell_size[cell_size[[1]] %in% valid.ct, ]
+  }
+  ct.map             <- ct.map[ct.map$formatted_ct %in% valid.ct, ]
   
   
   # prop_all <- music_prop(bulk.mtx  = cbind(bulk.control.mtx, bulk.case.mtx), 
