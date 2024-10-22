@@ -74,6 +74,10 @@ music2_prop(
 
 \item{ct.cov}{logical. If TRUE, use the covariance across cell types;}
 
+\item{nu}{Threshold of convergence. Used by internal calls of MuSiC::music_prop();}
+
+\item{eps}{regulation parameter, take care of weight when taking reciprocal. Used by internal calls of MuSiC::music_prop();}
+
 \item{cap}{numeric, cutoff on maximum number of genes removed for each cell type. For each cell type, at the maximum, genes with FDR adjusted p-value within the lower cap quantile are removed. Default is 0.3;}
 
 \item{centered}{logic, subtract avg of Y and D;}

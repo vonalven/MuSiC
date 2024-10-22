@@ -85,37 +85,6 @@ music2_prop <- function(bulk.control.mtx,
                         # random_seed = 123,
                         nb_cores    = 1){
   
-  # bulk.control.mtx = readRDS("./bulk_mat_control_test.RDS")
-  # bulk.case.mtx    = readRDS("./bulk_mat_case_test.RDS")
-  # sc.sce           = readRDS("./sc_exp_test.RDS")
-  # clusters         = "celltype1"
-  # samples          = "sampleID"
-  # select.ct        = readRDS("./celltypes_test.RDS")
-  # select.ct        = NULL
-  # method           = "t_stats"
-  # expr_low         = 20
-  # prop_r           = 0.1
-  # eps_c            = 0.05
-  # eps_r            = 0.01
-  # n_resample       = 20
-  # # sample_prop      = 0.5
-  # sample_prop      = 0.8
-  # cutoff_expr      = 0.05
-  # cutoff_c         = 0.05
-  # cutoff_r         = 0.01
-  # maxiter          = 200
-  # markers          = NULL
-  # cell_size        = NULL
-  # ct.cov           = FALSE
-  # nu               = 1e-04
-  # eps              = 0.01
-  # cap              = 0.3
-  # centered         = FALSE
-  # normalize        = FALSE
-  # nb_cores          = 40
-  # random_seed      = 123
-
-  
   # set.seed(random_seed)
   
   gene.bulk <- intersect(rownames(bulk.control.mtx), rownames(bulk.case.mtx))
@@ -140,6 +109,10 @@ music2_prop <- function(bulk.control.mtx,
   sc.coldata[[clusters]] <- plyr::mapvalues(sc.coldata[[clusters]], from = ct.map$input_ct, to = ct.map$formatted_ct)
   colData(sc.sce)        <- sc.coldata
   select.ct              <- unique(as.character(SingleCellExperiment::colData(sc.sce)[[clusters]]))
+
+  if(!is.null(cell_size)){
+    cell_size[[1]] <- plyr::mapvalues(as.character(cell_size[[1]]), from = ct.map$input_ct, to = ct.map$formatted_ct)
+  }
   
   bulk.mtx    <- cbind(bulk.control.mtx[gene.bulk, ], bulk.case.mtx[gene.bulk, ])
   bulk.mtx    <- bulk.mtx[gene_all, ]
